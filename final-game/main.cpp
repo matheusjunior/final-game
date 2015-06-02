@@ -15,7 +15,7 @@ and may not be redistributed without written permission.*/
 
 #include <SDL2/SDL.h>
 #include <SDL2_image/SDL_image.h>
-#include <SDL2_ttf/SDL_ttf.h>r
+#include <SDL2_ttf/SDL_ttf.h>
 
 #endif
 
@@ -27,6 +27,7 @@ and may not be redistributed without written permission.*/
 #include "Color.hpp"
 #include "Sprite.h"
 #include "Vector2d.h"
+#include "Util.h"
 
 
 using namespace std;
@@ -40,6 +41,12 @@ const int SCREEN_WIDTH = 1200; // 1873
 const int SCREEN_HEIGHT = 800;
 
 const int MENU_HEIGHT = 95;
+
+// \todo find a better place
+const double ANGLE_CHANGE = 2;
+const float CIRCLE_DISTANCE = 5;
+const float CIRCLE_RADIUS = 2;
+float wanderAngle = 3;
 
 
 //The dot that will move around on the screen
@@ -81,6 +88,24 @@ public:
     void setStopping(const E_Movement movement);
     
     int getCollectable(Dot &obj);
+
+    Vector2d Seek(Vector2d target);
+
+    Vector2d Flee(Vector2d target);
+
+    Vector2d Arrive(Vector2d target);
+
+    Vector2d Wander(Vector2d target);
+
+    void setM_velocity(Vector2d const &m_velocity)
+    {
+        Dot::m_velocity = m_velocity;
+    }
+
+    Vector2d const &getM_velocity() const
+    {
+        return m_velocity;
+    }
 
     bool isToRender() const
     {
@@ -545,9 +570,9 @@ int main(int argc, char *args[])
 
             //The dot that will be moving around on the screen
             Dot dot;
-            Dot coin;
-            Vector2d pos(dot.getPosX() + 100, dot.getPosY());
-            coin.setM_position(pos);
+            Dot target;
+            Vector2d pos(dot.getPosX() + 400, dot.getPosY() + 200);
+            target.setM_position(pos);
 
             //The camera area
             SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
@@ -555,6 +580,12 @@ int main(int argc, char *args[])
 
             gBGTextureValley.setTransparency(100);
 
+            int x, y;
+            x = y = 100;
+
+            Vector2d v(1,1);
+            dot.setM_velocity(v);
+            bool turn = true;
             //While application is running
             while (!quit) {
                 currentFrameTime = SDL_GetTicks();
@@ -572,10 +603,14 @@ int main(int argc, char *args[])
                     dot.handleEvent(e);
                     if (e.key.keysym.sym == SDLK_p) {
                         // Check if there is any collectable object in range
-                        if (dot.getCollectable(coin)) {
-                            coin.setToRender(false);
+                        if (dot.getCollectable(target)) {
+                            target.setToRender(false);
                         }
-                        else coin.setToRender(true);
+                        else target.setToRender(true);
+                    }
+
+                    if (e.type == SDL_MOUSEMOTION) {
+                        SDL_GetMouseState(&x, &y);
                     }
                 }
 
@@ -608,13 +643,22 @@ int main(int argc, char *args[])
                 gBGTexture.render(0, 0, &camera);
                 gBGTextureValley.render(0, 0, &camera);
 
+                Vector2d t(x, y);
+                if (turn) {
+                    Vector2d steeringForce = dot.Wander(t);
+                    // just change the direction of the vector
+                    dot.setM_velocity(dot.getM_velocity() + steeringForce);
+                    dot.setM_position(dot.getM_position() + dot.getM_velocity());
+                }
+                turn = !turn;
+
                 dot.Update(d_time);
 
                 //Render objects
                 dot.render(camera.x, camera.y);
 
-                if (coin.isToRender()) {
-                    coin.render(0, 0);
+                if (target.isToRender()) {
+                    target.render(0, 0);
                 }
 
                 //Update screen
@@ -624,7 +668,6 @@ int main(int argc, char *args[])
             }
         }
     }
-
     //Free resources and close SDL
     close();
 
@@ -644,3 +687,94 @@ int Dot::getCollectable(Dot &obj)
     }
     return 0;
 }
+
+Vector2d Dot::Seek(Vector2d target)
+{
+    Vector2d desiredVelocity;
+
+    desiredVelocity = Vector2d::Normalize(target - this->m_position);
+    desiredVelocity.x *= MAX_VELOCITY.x;
+    desiredVelocity.y *= MAX_VELOCITY.y;
+
+    return desiredVelocity - this->m_velocity;
+}
+
+Vector2d Dot::Flee(Vector2d target)
+{
+    Vector2d desiredVelocity;
+    const double SAFE_ZONE = 100 * 100;
+
+    // check if the enemy is far enough to keep calm
+    if (this->getM_position().getSequentialDistance(target) > SAFE_ZONE) {
+        return Vector2d(0, 0);
+    }
+    desiredVelocity = Vector2d::Normalize(target - this->m_position);
+    desiredVelocity.x *= MAX_VELOCITY.x;
+    desiredVelocity.y *= MAX_VELOCITY.y;
+
+    return this->m_velocity - desiredVelocity;
+}
+
+Vector2d Dot::Arrive(Vector2d target)
+{
+    Vector2d desiredVelocity;
+    const float slowingRadius = 100;
+    float distance;
+
+    desiredVelocity = target - this->m_position;
+    // Line orders cannot be inverted
+    distance = desiredVelocity.getLength();
+    desiredVelocity.Normalize();
+    desiredVelocity.x *= MAX_VELOCITY.x;
+    desiredVelocity.y *= MAX_VELOCITY.y;
+
+    if (distance < slowingRadius) {
+        desiredVelocity.x *= (distance / slowingRadius);
+        desiredVelocity.y *= (distance / slowingRadius);
+    }
+
+    return desiredVelocity - this->m_velocity;
+}
+
+Vector2d Dot::Wander(Vector2d target)
+{
+    Vector2d circle;
+    Vector2d wanderForce;
+    Vector2d displacement(0, -1);
+
+    circle = this->m_velocity;
+    // Find the circle's center position
+    circle.Normalize();
+    circle.x *= CIRCLE_DISTANCE;
+    circle.y *= CIRCLE_DISTANCE;
+
+    // rotation matrix
+    displacement.x = cos(wanderAngle) * displacement.x + -sin(wanderAngle) * displacement.y;
+    displacement.y = sin(wanderAngle) * displacement.x + cos(wanderAngle) * displacement.y;
+
+    displacement.x *= CIRCLE_RADIUS;
+    displacement.y *= CIRCLE_RADIUS;
+
+    cout << "x " << displacement.y << endl;
+    cout << wanderAngle << endl;
+
+    wanderAngle += Util::GenerateRandom(0, 10) * ANGLE_CHANGE - ANGLE_CHANGE * 0.1;
+//    if (wanderAngle > INT_MAX/2) wanderAngle = 0;
+
+    return circle + displacement;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

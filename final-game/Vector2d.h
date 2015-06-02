@@ -24,11 +24,15 @@ struct Vector2d {
 
 	float getDistance(const Vector2d &v2) const;
 
+    float getSequentialDistance(Vector2d const &u) const;
+
 	float getDotProduct(const Vector2d &v2) const;
 
 	void Truncate(float max);
 
 	void Normalize();
+
+    static Vector2d Normalize(Vector2d v);
 	 
 	double Dot(const Vector2d &v2) const;
 	
@@ -62,6 +66,13 @@ struct Vector2d {
 		return *this;
 	}
 
+    const Vector2d& operator*=(const Vector2d& rhs) {
+        x *= rhs.x;
+        y *= rhs.y;
+
+        return *this;
+    }
+
 	const Vector2d& operator/=(const double& rhs) {
 		x /= rhs;
 		y /= rhs;
@@ -76,6 +87,7 @@ struct Vector2d {
 	bool operator!=(const Vector2d& rhs) const {
 		return (x != rhs.x) || (y != rhs.y);
 	}
+
 
 };
 
@@ -128,3 +140,5 @@ inline Vector2d operator/(const Vector2d &lhs, double val)
 
 	return result;
 }
+
+const Vector2d MAX_VELOCITY(3,3);
