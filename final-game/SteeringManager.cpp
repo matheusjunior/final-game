@@ -8,6 +8,12 @@
 #include "SteeringManager.h"
 #include "Util.h"
 
+// \todo why it shouldn't be placed in the header file?
+const double ANGLE_CHANGE = 2;
+const float CIRCLE_DISTANCE = 5;
+const float CIRCLE_RADIUS = 2;
+float wanderAngle = 3;
+
 void SteeringManager::Seek(Vector2d target)
 {
     // \FIXME must be added to itself to allow multiple behaviour combination, reset in update
@@ -24,10 +30,10 @@ void SteeringManager::Arrive(Vector2d target)
     steeringForce += doArrive(target);
 }
 
-//void SteeringManager::Wander()
-//{
-//    steeringForce += doWander();
-//}
+void SteeringManager::Wander()
+{
+    steeringForce += doWander();
+}
 
 void SteeringManager::Pursuit(IMovingEntity &target)
 {
@@ -100,35 +106,35 @@ void SteeringManager::update()
     host->setVelocity(host->getVelocity() + steeringForce);
     host->setPos(host->getPos() + host->getVelocity());
 
-    // \FIXME Must be reset since each force caulcalition does not depend on the previous one
+    // \FIXME Must be reset since each force calculation does not depend on the previous one but the current
     steeringForce.x = 0;
     steeringForce.y = 0;
 }
 
-//Vector2d SteeringManager::doWander()
-//{
-//    Vector2d circle;
-//    Vector2d wanderForce;
-//    Vector2d displacement(0, -1);
-//
-//    circle = host->getVelocity();
-//    // Find the circle's center position
-//    circle.Normalize();
-//    circle.x *= CIRCLE_DISTANCE;
-//    circle.y *= CIRCLE_DISTANCE;
-//
-//    // rotation matrix
-//    displacement.x = cos(wanderAngle) * displacement.x + -sin(wanderAngle) * displacement.y;
-//    displacement.y = sin(wanderAngle) * displacement.x + cos(wanderAngle) * displacement.y;
-//
-//    displacement.x *= CIRCLE_RADIUS;
-//    displacement.y *= CIRCLE_RADIUS;
-//
-//    wanderAngle += Util::GenerateRandom(0, 10) * ANGLE_CHANGE - ANGLE_CHANGE * 0.1;
-////    if (wanderAngle > INT_MAX/2) wanderAngle = 0;
-//
-//    return circle + displacement;
-//}
+Vector2d SteeringManager::doWander()
+{
+    Vector2d circle;
+    Vector2d displacement(0, -1);
+
+    circle = host->getVelocity();
+    // Find the circle's center position
+    circle.Normalize();
+    circle.x *= CIRCLE_DISTANCE;
+    circle.y *= CIRCLE_DISTANCE;
+
+    // rotation matrix
+    displacement.x = cos(wanderAngle) * displacement.x + -sin(wanderAngle) * displacement.y;
+    displacement.y = sin(wanderAngle) * displacement.x + cos(wanderAngle) * displacement.y;
+
+    displacement.x *= CIRCLE_RADIUS;
+    displacement.y *= CIRCLE_RADIUS;
+
+    wanderAngle += Util::GenerateRandom(0, 10) * ANGLE_CHANGE - ANGLE_CHANGE * 0.1;
+    // \todo for safety reasons, long-running instance
+    if (wanderAngle > INT_MAX/2) wanderAngle = 0;
+
+    return circle + displacement;
+}
 Vector2d SteeringManager::doPursuit(IMovingEntity &target)
 {
     Vector2d distance = target.getPos() - host->getPos();

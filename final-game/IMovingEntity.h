@@ -7,9 +7,9 @@
 #ifndef __IMovingEntity_H_
 #define __IMovingEntity_H_
 
-
 #include "Vector2d.h"
 
+/* Interface for allowing different game entities to use steering behaviours */
 class IMovingEntity
 {
 public:

@@ -44,11 +44,6 @@ const int SCREEN_HEIGHT = 800;
 
 const int MENU_HEIGHT = 95;
 
-const double ANGLE_CHANGE = 2;
-const float CIRCLE_DISTANCE = 5;
-const float CIRCLE_RADIUS = 2;
-float wanderAngle = 3;
-
 //The dot that will move around on the screen
 class Dot : public IMovingEntity
 {
@@ -304,8 +299,7 @@ void Dot::Update(const double d_time)
         m_velocity.y *= m_current_speed;
     }
 
-    // \todo should be called here?
-//    steering->update();
+    steering->update();
     updateVelocity(d_time);
     updatePosition(d_time);
 }
@@ -627,7 +621,6 @@ int main(int argc, char *args[])
                         SDL_GetMouseState(&x, &y);
                     }
                 }
-
                 //Move the dot
                 //dot.move();
 
@@ -659,15 +652,9 @@ int main(int argc, char *args[])
 
                 t.x = x;
                 t.y = y;
-//
-                target.getSteering()->Seek(t);
-                target.getSteering()->update();
-                dot.getSteering()->Pursuit(target);
-                dot.getSteering()->update();
 
-//                steeringForce = dot.Pursuit(target);
-//                dot.setM_velocity(dot.getM_velocity() + steeringForce); // just change the direction of the vector
-//                dot.setM_position(dot.getM_position() + dot.getM_velocity());
+                target.getSteering()->Seek(t);
+                dot.getSteering()->Wander();
 
                 // \FIXME overriden by the steering bahaviour functions
                 dot.Update(d_time);
