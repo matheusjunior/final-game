@@ -28,6 +28,8 @@ and may not be redistributed without written permission.*/
 #include "Sprite.h"
 #include "Vector2d.h"
 #include "Util.h"
+#include "IMovingEntity.h"
+#include "SteeringManager.h"
 
 
 using namespace std;
@@ -42,15 +44,13 @@ const int SCREEN_HEIGHT = 800;
 
 const int MENU_HEIGHT = 95;
 
-// \todo find a better place
 const double ANGLE_CHANGE = 2;
 const float CIRCLE_DISTANCE = 5;
 const float CIRCLE_RADIUS = 2;
 float wanderAngle = 3;
 
-
 //The dot that will move around on the screen
-class Dot
+class Dot : public IMovingEntity
 {
 public:
     //The dimensions of the dot
@@ -89,18 +89,16 @@ public:
     
     int getCollectable(Dot &obj);
 
-    /// Object must be update after calling steering behaviour functions
-    Vector2d Seek(Vector2d target);
+    /* Implement required methods from IMovingEntity */
+    virtual Vector2d getVelocity() { return m_velocity; }
 
-    Vector2d Flee(Vector2d target);
+    virtual Vector2d getPos() { return m_position; }
 
-    Vector2d Arrive(Vector2d target);
+    // \FIXME Not the best way, duplicated code may indicate code smell...
+    virtual void setVelocity(Vector2d vel) { m_velocity = vel; }
 
-    Vector2d Wander();
+    virtual void setPos(Vector2d pos) { m_position = pos; }
 
-    Vector2d Pursuit(Dot &target);
-
-    Vector2d Evade(Dot &target);
 
     void setM_velocity(Vector2d const &m_velocity)
     {
@@ -137,6 +135,12 @@ public:
         return isCollectable;
     }
 
+
+    SteeringManager *getSteering() const
+    {
+        return steering;
+    }
+
 private:
     Vector2d m_position, m_velocity;
     E_Movement m_current_movement, m_previous_movement;
@@ -144,6 +148,7 @@ private:
     bool m_isAccelerating, m_isMoving;
     bool toRender;
     bool isCollectable;
+    SteeringManager *steering;
 };
 
 //Starts up SDL and creates window
@@ -156,12 +161,10 @@ bool loadMedia();
 void close();
 
 //The window we'll be rendering to
-SDL_Window *
-        gWindow = NULL;
+SDL_Window *gWindow = NULL;
 
 //The window renderer
-SDL_Renderer *
-        gRenderer = NULL;
+SDL_Renderer *gRenderer = NULL;
 
 //Scene textures
 LTexture gDotTexture, gBGTexture, gBGTextureValley,
@@ -182,6 +185,7 @@ Dot::Dot()
     m_current_movement = m_previous_movement = E_STOPPED;
     toRender = true;
     isCollectable = true;
+    steering = new SteeringManager(this);
 }
 
 void Dot::handleEvent(const SDL_Event &e)
@@ -300,8 +304,9 @@ void Dot::Update(const double d_time)
         m_velocity.y *= m_current_speed;
     }
 
+    // \todo should be called here?
+//    steering->update();
     updateVelocity(d_time);
-
     updatePosition(d_time);
 }
 
@@ -654,15 +659,17 @@ int main(int argc, char *args[])
 
                 t.x = x;
                 t.y = y;
+//
+                target.getSteering()->Seek(t);
+                target.getSteering()->update();
+                dot.getSteering()->Pursuit(target);
+                dot.getSteering()->update();
 
-                steeringForce = target.Flee(t);
-                target.setM_velocity(target.getM_velocity() + steeringForce);
-                target.setM_position(target.getM_position() + target.getM_velocity());
+//                steeringForce = dot.Pursuit(target);
+//                dot.setM_velocity(dot.getM_velocity() + steeringForce); // just change the direction of the vector
+//                dot.setM_position(dot.getM_position() + dot.getM_velocity());
 
-                steeringForce = dot.Pursuit(target);
-                dot.setM_velocity(dot.getM_velocity() + steeringForce); // just change the direction of the vector
-                dot.setM_position(dot.getM_position() + dot.getM_velocity());
-
+                // \FIXME overriden by the steering bahaviour functions
                 dot.Update(d_time);
                 target.Update(d_time);
 
@@ -700,97 +707,4 @@ int Dot::getCollectable(Dot &obj)
         return 1;
     }
     return 0;
-}
-
-Vector2d Dot::Seek(Vector2d target)
-{
-    Vector2d desiredVelocity;
-
-    desiredVelocity = Vector2d::Normalize(target - this->m_position);
-    desiredVelocity.x *= MAX_VELOCITY.x;
-    desiredVelocity.y *= MAX_VELOCITY.y;
-
-    return desiredVelocity - this->m_velocity;
-}
-
-Vector2d Dot::Flee(Vector2d target)
-{
-    Vector2d desiredVelocity;
-    const double SAFE_ZONE = 100 * 100;
-
-    // check if the enemy is far enough to keep calm
-    if (this->getM_position().getSequentialDistance(target) > SAFE_ZONE) {
-        return Vector2d(0, 0);
-    }
-    desiredVelocity = Vector2d::Normalize(this->m_position - target);
-    desiredVelocity.x *= MAX_VELOCITY.x;
-    desiredVelocity.y *= MAX_VELOCITY.y;
-
-    return desiredVelocity - this->m_velocity;
-}
-
-Vector2d Dot::Arrive(Vector2d target)
-{
-    Vector2d desiredVelocity;
-    const float slowingRadius = 100;
-    float distance;
-
-    desiredVelocity = target - this->m_position;
-    // Line orders cannot be inverted
-    distance = desiredVelocity.getLength();
-    desiredVelocity.Normalize();
-    desiredVelocity.x *= MAX_VELOCITY.x;
-    desiredVelocity.y *= MAX_VELOCITY.y;
-
-    if (distance < slowingRadius) {
-        desiredVelocity.x *= (distance / slowingRadius);
-        desiredVelocity.y *= (distance / slowingRadius);
-    }
-
-    return desiredVelocity - this->m_velocity;
-}
-
-Vector2d Dot::Wander()
-{
-    Vector2d circle;
-    Vector2d wanderForce;
-    Vector2d displacement(0, -1);
-
-    circle = this->m_velocity;
-    // Find the circle's center position
-    circle.Normalize();
-    circle.x *= CIRCLE_DISTANCE;
-    circle.y *= CIRCLE_DISTANCE;
-
-    // rotation matrix
-    displacement.x = cos(wanderAngle) * displacement.x + -sin(wanderAngle) * displacement.y;
-    displacement.y = sin(wanderAngle) * displacement.x + cos(wanderAngle) * displacement.y;
-
-    displacement.x *= CIRCLE_RADIUS;
-    displacement.y *= CIRCLE_RADIUS;
-
-    cout << "x " << displacement.y << endl;
-    cout << wanderAngle << endl;
-
-    wanderAngle += Util::GenerateRandom(0, 10) * ANGLE_CHANGE - ANGLE_CHANGE * 0.1;
-//    if (wanderAngle > INT_MAX/2) wanderAngle = 0;
-
-    return circle + displacement;
-}
-
-
-Vector2d Dot::Pursuit(Dot &target)
-{
-    Vector2d distance = target.getM_position() - m_position;
-    int T = distance.getLength() / MAX_VELOCITY.x;
-    Vector2d futurePosition = target.m_position + target.m_velocity * T;
-    return Seek(futurePosition);
-}
-
-Vector2d Dot::Evade(Dot &target)
-{
-    Vector2d distance = target.getM_position() - m_position;
-    int T = distance.getLength() / MAX_VELOCITY.x;
-    Vector2d futurePosition = target.m_position + target.m_velocity * T;
-    return Flee(futurePosition);
 }
