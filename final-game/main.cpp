@@ -343,6 +343,7 @@ void Dot::updateVelocity(const double d_time)
         acceleration.x = 1.2f;
     }
 
+    //FIXME clearing vel prevents followLeader behavior to work properly
     if (d_time == 0) {
         m_velocity.x *= acceleration.x;
         m_velocity.y *= acceleration.y;
@@ -575,8 +576,10 @@ int main(int argc, char *args[])
             //The dot that will be moving around on the screen
             Dot dot;
             Dot target;
+            Dot target2;
             Vector2d pos(dot.getPosX() + 400, dot.getPosY() + 200);
             target.setM_position(pos);
+            target2.setM_position(pos);
 
             //The camera area
             SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
@@ -593,6 +596,7 @@ int main(int argc, char *args[])
             Vector2d steeringForce;
             dot.setM_velocity(v);
             target.setM_velocity(v);
+            target2.setM_velocity(v);
 
             //While application is running
             while (!quit) {
@@ -653,17 +657,20 @@ int main(int argc, char *args[])
                 t.x = x;
                 t.y = y;
 
-                target.getSteering()->Seek(t);
-                dot.getSteering()->Wander();
+//                target.getSteering()->Seek(t);
+                dot.getSteering()->Flee(t);
+//                target2.getSteering()->followLeader(target);
 
                 // \FIXME overriden by the steering bahaviour functions
                 dot.Update(d_time);
-                target.Update(d_time);
+//                target.Update(d_time);
+//                target2.Update(d_time);
 
                 //Render objects
                 // \FIXME dot.render(camera.x, camera.y) affects steering behaviour working
                 dot.render(0, 0);
-                target.render(0, 0);
+//                target.render(0, 0);
+//                target2.render(0, 0);
 
 //                if (target.isToRender()) {
 //                    target.render(0, 0);

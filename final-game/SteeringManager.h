@@ -42,6 +42,8 @@ public:
 
     void Evade(IMovingEntity &target);
 
+    void followLeader(IMovingEntity &leader);
+
     /* Updates host velocity and position applying the calculated steering force.
     *  Resets x and y coordinates to 0 since forces must be new in each behaviour */
     void update();
@@ -58,7 +60,7 @@ private:
     Vector2d doFlee(Vector2d target);
 
     /* Seek-like behaviour with smooth arrival when approaching the target
-    *  Returns a Vector2d holding the steering value force to be applied to host *;
+    *  Returns a Vector2d holding the steering value force to be applied to host */;
     Vector2d doArrive(Vector2d target);
 
     /* Wander on screen */
@@ -72,6 +74,8 @@ private:
     /* Flee-based function that evades a target. Predict target's future position T times in the future *
     *  Returns a Vector2d holding the steering value force to be applied to host */
     Vector2d doEvade(IMovingEntity &target);
+
+    Vector2d doFollowLeader(IMovingEntity &leader);
 };
 
 

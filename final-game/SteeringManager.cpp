@@ -12,6 +12,7 @@
 const double ANGLE_CHANGE = 2;
 const float CIRCLE_DISTANCE = 5;
 const float CIRCLE_RADIUS = 2;
+const float LEADER_BEHIND_DIST = 50;
 float wanderAngle = 3;
 
 void SteeringManager::Seek(Vector2d target)
@@ -135,10 +136,32 @@ Vector2d SteeringManager::doWander()
 
     return circle + displacement;
 }
+
 Vector2d SteeringManager::doPursuit(IMovingEntity &target)
 {
     Vector2d distance = target.getPos() - host->getPos();
     int T = distance.getLength() / MAX_VELOCITY.x;
     Vector2d futurePosition = target.getPos() + target.getVelocity() * T;
     return doSeek(futurePosition);
+}
+
+void SteeringManager::followLeader(IMovingEntity &leader)
+{
+    steeringForce += doFollowLeader(leader);
+}
+
+Vector2d SteeringManager::doFollowLeader(IMovingEntity &leader)
+{
+    Vector2d leaderVel = leader.getVelocity();
+    Vector2d force;
+    Vector2d behind;
+
+    leaderVel *= -1;
+    leaderVel.Normalize();
+    leaderVel *= LEADER_BEHIND_DIST;
+    behind = leader.getPos() + leaderVel;
+
+    std::cout << "leader x " << leader.getPos().x << std::endl;
+    std::cout << "behind x " << behind.x << std::endl;
+    return doArrive(behind);
 }
