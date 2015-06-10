@@ -30,6 +30,7 @@ and may not be redistributed without written permission.*/
 #include "Util.h"
 #include "IMovingEntity.h"
 #include "SteeringManager.h"
+#include "Menu.h"
 
 
 using namespace std;
@@ -539,6 +540,7 @@ void close()
 int main(int argc, char *args[])
 {
     srand(time(NULL));
+    Menu gameMenu();
     Uint32 currentFrameTime, lastFrameTime;
     double d_time;
     int fps = 40, fpsMill = 1000 / fps;
