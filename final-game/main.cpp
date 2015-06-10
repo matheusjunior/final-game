@@ -39,10 +39,6 @@ using namespace std;
 const int LEVEL_WIDTH = 4000;
 const int LEVEL_HEIGHT = 2250;
 
-//Screen dimension constants
-const int SCREEN_WIDTH = 1200; // 1873
-const int SCREEN_HEIGHT = 800;
-
 const int MENU_HEIGHT = 95;
 
 //The dot that will move around on the screen
@@ -82,7 +78,7 @@ public:
     void setMovement(const E_Movement movement);
 
     void setStopping(const E_Movement movement);
-    
+
     int getCollectable(Dot &obj);
 
     /* Implement required methods from IMovingEntity */
@@ -539,9 +535,12 @@ void close()
 
 int main(int argc, char *args[])
 {
+    bool isGamePaused = false;
     srand(time(NULL));
-    Menu gameMenu();
-    Uint32 currentFrameTime, lastFrameTime;
+
+    // Initialized to avoid error when calculating the last frame time and the game is pause
+    Uint32 currentFrameTime = 0;
+    Uint32 lastFrameTime = 0;
     double d_time;
     int fps = 40, fpsMill = 1000 / fps;
     SDL_Texture *backgroundText = NULL;
@@ -574,6 +573,8 @@ int main(int argc, char *args[])
 
             //Event handler
             SDL_Event e;
+            //Should be created just after TTF initialization done in init()
+            Menu gameMenu = Menu();
 
             //The dot that will be moving around on the screen
             Dot dot;
@@ -607,12 +608,20 @@ int main(int argc, char *args[])
                 lastFrameTime = SDL_GetTicks();
                 //Handle events on queue
                 while (SDL_PollEvent(&e) != 0) {
+                    //FIXME optimize performance using switch
                     //User requests quit
                     if (e.type == SDL_QUIT)
                         quit = true;
 
                     if (e.key.keysym.sym == SDLK_ESCAPE)
                         quit = true;
+                    //TODO read more than once in just a single press, going to use 2 keys for pausing/resuming
+                    if (e.key.keysym.sym == SDLK_SPACE) {
+                        isGamePaused = true;
+                    }
+                    if (e.key.keysym.sym == SDLK_m) {
+                        isGamePaused = false;
+                    }
                     //Handle input for the dot
                     dot.handleEvent(e);
                     if (e.key.keysym.sym == SDLK_p) {
@@ -629,48 +638,50 @@ int main(int argc, char *args[])
                 }
                 //Move the dot
                 //dot.move();
+//                if (isGamePaused) cout << "true" << endl;
+//                else cout << "false" << endl;
+                if (!isGamePaused) {
+                    //Center the camera over the dot
+                    camera.x = (dot.getPosX() + Dot::DOT_WIDTH / 2) - SCREEN_WIDTH / 2;
+                    camera.y = (dot.getPosY() + Dot::DOT_HEIGHT / 2) - SCREEN_HEIGHT / 2;
 
-                //Center the camera over the dot
-                camera.x = (dot.getPosX() + Dot::DOT_WIDTH / 2) - SCREEN_WIDTH / 2;
-                camera.y = (dot.getPosY() + Dot::DOT_HEIGHT / 2) - SCREEN_HEIGHT / 2;
+                    //Keep the camera in bounds
+                    if (camera.x < 0) {
+                        camera.x = 0;
+                    }
+                    if (camera.y < 0) {
+                        camera.y = 0;
+                    }
+                    if (camera.x > LEVEL_WIDTH - camera.w) {
+                        camera.x = LEVEL_WIDTH - camera.w;
+                    }
+                    if (camera.y > LEVEL_HEIGHT - camera.h + MENU_HEIGHT) {
+                        camera.y = LEVEL_HEIGHT - camera.h + MENU_HEIGHT;
+                    }
 
-                //Keep the camera in bounds
-                if (camera.x < 0) {
-                    camera.x = 0;
-                }
-                if (camera.y < 0) {
-                    camera.y = 0;
-                }
-                if (camera.x > LEVEL_WIDTH - camera.w) {
-                    camera.x = LEVEL_WIDTH - camera.w;
-                }
-                if (camera.y > LEVEL_HEIGHT - camera.h + MENU_HEIGHT) {
-                    camera.y = LEVEL_HEIGHT - camera.h + MENU_HEIGHT;
-                }
+                    //Clear screen
+                    SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                    SDL_RenderClear(gRenderer);
 
-                //Clear screen
-                SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-                SDL_RenderClear(gRenderer);
+                    //Render background
+                    gBGTexture.render(0, 0, &camera);
+                    gBGTextureValley.render(0, 0, &camera);
 
-                //Render background
-                gBGTexture.render(0, 0, &camera);
-                gBGTextureValley.render(0, 0, &camera);
-
-                t.x = x;
-                t.y = y;
+                    t.x = x;
+                    t.y = y;
 
 //                target.getSteering()->Seek(t);
-                dot.getSteering()->Flee(t);
+                    dot.getSteering()->Flee(t);
 //                target2.getSteering()->followLeader(target);
 
-                // \FIXME overriden by the steering bahaviour functions
-                dot.Update(d_time);
+                    // \FIXME overriden by the steering bahaviour functions
+                    dot.Update(d_time);
 //                target.Update(d_time);
 //                target2.Update(d_time);
 
-                //Render objects
-                // \FIXME dot.render(camera.x, camera.y) affects steering behaviour working
-                dot.render(0, 0);
+                    //Render objects
+                    // \FIXME dot.render(camera.x, camera.y) affects steering behaviour working
+                    dot.render(0, 0);
 //                target.render(0, 0);
 //                target2.render(0, 0);
 
@@ -678,10 +689,35 @@ int main(int argc, char *args[])
 //                    target.render(0, 0);
 //                }
 
-                //Update screen
-                SDL_RenderPresent(gRenderer);
+                    //Update screen
+                    SDL_RenderPresent(gRenderer);
 
-                SDL_Delay(fpsMill - d_time);
+                    SDL_Delay(fpsMill - d_time);
+                }
+                else {
+                    SDL_RenderClear(gRenderer);
+                    gameMenu.adjustText();
+                    //TODO find a better way to do this
+                    Text* gameMainMenuOpt1 = gameMenu.getMainMenuOpt1();
+                    Text* gameMainMenuOpt2 = gameMenu.getMainMenuOpt2();
+                    Text* gameMainMenuOpt3 = gameMenu.getMainMenuOpt3();
+
+                    gameMainMenuOpt1->surface = TTF_RenderText_Solid(gameMainMenuOpt1->font,
+                            gameMainMenuOpt1->displayText.c_str(), gameMainMenuOpt1->color);
+                    gameMainMenuOpt1->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt1->surface);
+                    SDL_RenderCopy(gRenderer, gameMainMenuOpt1->texture, NULL, &gameMainMenuOpt1->rect);
+
+                    gameMainMenuOpt2->surface = TTF_RenderText_Solid(gameMainMenuOpt2->font,
+                            gameMainMenuOpt2->displayText.c_str(), gameMainMenuOpt2->color);
+                    gameMainMenuOpt2->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt2->surface);
+                    SDL_RenderCopy(gRenderer, gameMainMenuOpt2->texture, NULL, &gameMainMenuOpt2->rect);
+
+                    gameMainMenuOpt3->surface = TTF_RenderText_Solid(gameMainMenuOpt3->font,
+                            gameMainMenuOpt3->displayText.c_str(), gameMainMenuOpt3->color);
+                    gameMainMenuOpt3->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt3->surface);
+                    SDL_RenderCopy(gRenderer, gameMainMenuOpt3->texture, NULL, &gameMainMenuOpt3->rect);
+                    SDL_RenderPresent(gRenderer);
+                }
             }
         }
     }
@@ -697,8 +733,11 @@ int Dot::getCollectable(Dot &obj)
     // \todo should collectable be destroyed?
     if (!obj.IsCollectable()) return 0;
 
-    bool isSameLine = obj.getPosX() <= this->getPosX() + 50 && obj.getPosX() >= this->getPosX() - 50;
-    bool isSameColumn = obj.getPosY() >= this->getPosY() - 10 && obj.getPosY() <= this->getPosY() + 10;
+    bool isSameLine = obj.getPosX() <= this->getPosX() + 50 &&
+            obj.getPosX() >= this->getPosX() - 50;
+    bool isSameColumn = obj.getPosY() >= this->getPosY() - 10 &&
+            obj.getPosY() <= this->getPosY() + 10;
+
     if (isSameLine && isSameColumn) {
         return 1;
     }

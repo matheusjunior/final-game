@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Menu.h"
 
 void Menu::adjustText() {
@@ -33,9 +34,11 @@ void Menu::updatePosition(Text* t, int px, int py, int w, int h) {
 }
 
 Text*Menu::loadFontAndSetPositionRef(int px, int py, int w, int h) {
-
 	Text* text = new Text();
 	text->font = TTF_OpenFont("media/emulogic.ttf", 20);
+    if (!text->font) {
+        std::cout << "TTF_OpenFont: " << TTF_GetError() << std::endl;
+    }
 
 	text->rect.x = px;
 	text->rect.y = py;
