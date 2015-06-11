@@ -16,7 +16,7 @@ class Menu
 private:
     const int m_rightArrowX = 34;
     const int m_rightArrowW = 30;
-    int previousSelected = 1;
+    int currSelectedOption = 1;
     bool singleInstance = true;
     Text *m_gameMainMenuOpt1;
     Text *m_gameMainMenuOpt2;
@@ -41,9 +41,9 @@ public:
         m_gameMainMenuOpt2 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 25, 130, 25);
         m_gameMainMenuOpt3 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 5, 75, 25);
 
-        m_gameMainMenuOpt1->displayText = "> Novo Jogo";
-        m_gameMainMenuOpt2->displayText = "Opcoes";
-        m_gameMainMenuOpt3->displayText = "Sair";
+        m_gameMainMenuOpt1->displayText = "> New Game";
+        m_gameMainMenuOpt2->displayText = "Options";
+        m_gameMainMenuOpt3->displayText = "Exit";
 
         m_gameMainMenuOpt1->color = colorSelected;
         m_gameMainMenuOpt2->color = colorPause;

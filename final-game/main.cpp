@@ -622,6 +622,15 @@ int main(int argc, char *args[])
                     if (e.key.keysym.sym == SDLK_m) {
                         isGamePaused = false;
                     }
+                    // just when the key is down the event is valid so do not read key state changes from down to up
+                    if (e.key.keysym.sym == SDLK_UP && isGamePaused && e.type == SDL_KEYDOWN) {
+                        gameMenu.updateSelection(MENU_UP);
+                        break;
+                    }
+                    if (e.key.keysym.sym == SDLK_DOWN && isGamePaused && e.type == SDL_KEYDOWN) {
+                        gameMenu.updateSelection(MENU_DOWN);
+                        break;
+                    }
                     //Handle input for the dot
                     dot.handleEvent(e);
                     if (e.key.keysym.sym == SDLK_p) {
@@ -635,6 +644,9 @@ int main(int argc, char *args[])
                     if (e.type == SDL_MOUSEMOTION) {
                         SDL_GetMouseState(&x, &y);
                     }
+                    SDL_FlushEvent(SDL_KEYUP);
+                    SDL_FlushEvent(SDL_KEYDOWN);
+
                 }
                 //Move the dot
                 //dot.move();
