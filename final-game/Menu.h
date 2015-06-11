@@ -11,6 +11,9 @@
 #include "Text.h"
 #include "Consts.h"
 
+extern bool isGamePaused;
+extern bool quit;
+
 class Menu
 {
 private:

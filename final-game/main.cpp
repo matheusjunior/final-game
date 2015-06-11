@@ -40,7 +40,9 @@ const int LEVEL_WIDTH = 4000;
 const int LEVEL_HEIGHT = 2250;
 
 const int MENU_HEIGHT = 95;
-bool isGamePaused = false;
+bool isGamePaused = true;
+//Main loop flag
+bool quit = false;
 
 //The dot that will move around on the screen
 class Dot : public IMovingEntity
@@ -191,24 +193,26 @@ void Dot::handleEvent(const SDL_Event &e)
         switch (e.key.keysym.sym) {
             case SDLK_UP: {
                 setMovement(E_UP);
+                break;
                 //m_velocity.x -= 5;
             }
-                break;
             case SDLK_DOWN: {
                 setMovement(E_DOWN);
+                break;
                 //m_velocity.x += 5;
             }
-                break;
             case SDLK_LEFT: {
                 setMovement(E_LEFT);
+                break;
                 //m_velocity.y -= 5;
             }
-                break;
+
             case SDLK_RIGHT: {
                 setMovement(E_RIGHT);
+                break;
                 //m_velocity.y += 5;
             }
-                break;
+
         }
     }
         //If a key was released
@@ -217,20 +221,20 @@ void Dot::handleEvent(const SDL_Event &e)
         switch (e.key.keysym.sym) {
             case SDLK_UP: {
                 setStopping(E_UP);
-            }
                 break;
+            }
             case SDLK_DOWN: {
                 setStopping(E_DOWN);
-            }
                 break;
+            }
             case SDLK_LEFT: {
                 setStopping(E_LEFT);
-            }
                 break;
+            }
             case SDLK_RIGHT: {
                 setStopping(E_RIGHT);
-            }
                 break;
+            }
         }
     }
 }
@@ -568,9 +572,6 @@ int main(int argc, char *args[])
             printf("Failed to load media!\n");
 
         else {
-            //Main loop flag
-            bool quit = false;
-
             //Event handler
             SDL_Event e;
             //Should be created just after TTF initialization done in init()
@@ -600,11 +601,14 @@ int main(int argc, char *args[])
             target.setM_velocity(v);
             target2.setM_velocity(v);
 
+            //FIXME
             //While application is running
             while (!quit) {
                 currentFrameTime = SDL_GetTicks();
                 d_time = (currentFrameTime - lastFrameTime) / 1000;
                 lastFrameTime = SDL_GetTicks();
+                /* FIXME Press Down, Up, and Enter in this order
+                * The point will fall down*/
                 //Handle events on queue
                 while (SDL_PollEvent(&e) != 0) {
                     //FIXME optimize performance using switch
@@ -688,7 +692,7 @@ int main(int argc, char *args[])
                 }
                 else {
                     SDL_RenderClear(gRenderer);
-                    gameMenu.adjustText();
+//                    gameMenu.adjustText();
                     //TODO find a better way to do this
                     Text* gameMainMenuOpt1 = gameMenu.getMainMenuOpt1();
                     Text* gameMainMenuOpt2 = gameMenu.getMainMenuOpt2();

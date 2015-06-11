@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Menu.h"
 
-extern bool isGamePaused;
+
 
 void Menu::adjustText()
 {
@@ -135,21 +135,40 @@ void Menu::handleEvent(SDL_Event e)
     if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
         switch (e.key.keysym.sym) {
             //TODO read more than once in just a single press, going to use 2 keys for pausing/resuming
-            case SDLK_SPACE:
+            case SDLK_SPACE: {
                 isGamePaused = true;
                 break;
-
-            case SDLK_m:
+            }
+            case SDLK_m: {
                 isGamePaused = false;
                 break;
-
-            case SDLK_UP:
+            }
+            case SDLK_RETURN: {
+                switch (currSelectedOption) {
+                    // New Game option
+                    case 1: {
+                        isGamePaused = false;
+                        break;
+                    }
+                    case 2: {
+                        break;
+                    }
+                    case 3: {
+                        quit = true;
+                        break;
+                    }
+                    default:;
+                }
+                break;
+            }
+            case SDLK_UP: {
                 if (isGamePaused) updateSelection(MENU_UP);
                 break;
-
-            case SDLK_DOWN:
+            }
+            case SDLK_DOWN: {
                 if (isGamePaused) updateSelection(MENU_DOWN);
                 break;
+            }
         }
     }
     /* If needed... */
