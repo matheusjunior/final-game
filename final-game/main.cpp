@@ -40,6 +40,7 @@ const int LEVEL_WIDTH = 4000;
 const int LEVEL_HEIGHT = 2250;
 
 const int MENU_HEIGHT = 95;
+bool isGamePaused = false;
 
 //The dot that will move around on the screen
 class Dot : public IMovingEntity
@@ -535,7 +536,6 @@ void close()
 
 int main(int argc, char *args[])
 {
-    bool isGamePaused = false;
     srand(time(NULL));
 
     // Initialized to avoid error when calculating the last frame time and the game is pause
@@ -596,7 +596,6 @@ int main(int argc, char *args[])
             // \todo Destroy this object
             Vector2d v(1,1);
             Vector2d t(x, y);
-            Vector2d steeringForce;
             dot.setM_velocity(v);
             target.setM_velocity(v);
             target2.setM_velocity(v);
@@ -615,23 +614,9 @@ int main(int argc, char *args[])
 
                     if (e.key.keysym.sym == SDLK_ESCAPE)
                         quit = true;
-                    //TODO read more than once in just a single press, going to use 2 keys for pausing/resuming
-                    if (e.key.keysym.sym == SDLK_SPACE) {
-                        isGamePaused = true;
-                    }
-                    if (e.key.keysym.sym == SDLK_m) {
-                        isGamePaused = false;
-                    }
-                    // just when the key is down the event is valid so do not read key state changes from down to up
-                    if (e.key.keysym.sym == SDLK_UP && isGamePaused && e.type == SDL_KEYDOWN) {
-                        gameMenu.updateSelection(MENU_UP);
-                        break;
-                    }
-                    if (e.key.keysym.sym == SDLK_DOWN && isGamePaused && e.type == SDL_KEYDOWN) {
-                        gameMenu.updateSelection(MENU_DOWN);
-                        break;
-                    }
+
                     //Handle input for the dot
+                    gameMenu.handleEvent(e);
                     dot.handleEvent(e);
                     if (e.key.keysym.sym == SDLK_p) {
                         // Check if there is any collectable object in range
@@ -644,14 +629,9 @@ int main(int argc, char *args[])
                     if (e.type == SDL_MOUSEMOTION) {
                         SDL_GetMouseState(&x, &y);
                     }
-                    SDL_FlushEvent(SDL_KEYUP);
-                    SDL_FlushEvent(SDL_KEYDOWN);
-
                 }
                 //Move the dot
                 //dot.move();
-//                if (isGamePaused) cout << "true" << endl;
-//                else cout << "false" << endl;
                 if (!isGamePaused) {
                     //Center the camera over the dot
                     camera.x = (dot.getPosX() + Dot::DOT_WIDTH / 2) - SCREEN_WIDTH / 2;

@@ -63,6 +63,8 @@ public:
     Text *getMainMenuOpt2();
 
     Text *getMainMenuOpt3();
+
+    void handleEvent(SDL_Event e);
 };
 
 

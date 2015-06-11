@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Menu.h"
 
+extern bool isGamePaused;
+
 void Menu::adjustText()
 {
     if (singleInstance) {
@@ -125,4 +127,35 @@ Text *Menu::getMainMenuOpt2()
 Text *Menu::getMainMenuOpt3()
 {
     return m_gameMainMenuOpt3;
+}
+
+void Menu::handleEvent(SDL_Event e)
+{
+    // process just key down events and do not read key state changes from down to up
+    if (e.type == SDL_KEYDOWN && e.key.repeat == 0) {
+        switch (e.key.keysym.sym) {
+            //TODO read more than once in just a single press, going to use 2 keys for pausing/resuming
+            case SDLK_SPACE:
+                isGamePaused = true;
+                break;
+
+            case SDLK_m:
+                isGamePaused = false;
+                break;
+
+            case SDLK_UP:
+                if (isGamePaused) updateSelection(MENU_UP);
+                break;
+
+            case SDLK_DOWN:
+                if (isGamePaused) updateSelection(MENU_DOWN);
+                break;
+        }
+    }
+    /* If needed... */
+    /*else if (e.type == SDL_KEYUP && e.key.repeat == 0) {
+        switch (e.key.keysym.sym) {
+
+        }
+    }*/
 }
