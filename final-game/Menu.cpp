@@ -67,6 +67,13 @@ Text Menu::loadFontAndSetPosition(int px, int py, int w, int h)
     return text;
 }
 
+Text Menu::loadFont()
+{
+    Text text;
+    text.font = TTF_OpenFont("media/emulogic.ttf", 20);
+    return text;
+}
+
 void Menu::updateSelection(int direction)
 {
     if (direction == MENU_UP) {

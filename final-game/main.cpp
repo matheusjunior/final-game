@@ -31,6 +31,7 @@ and may not be redistributed without written permission.*/
 #include "IMovingEntity.h"
 #include "SteeringManager.h"
 #include "Menu.h"
+#include "Stopwatch.h"
 
 
 using namespace std;
@@ -144,6 +145,7 @@ private:
     bool toRender;
     bool isCollectable;
     SteeringManager *steering;
+    Stopwatch stopwatch;
 };
 
 //Starts up SDL and creates window
@@ -601,6 +603,13 @@ int main(int argc, char *args[])
             target.setM_velocity(v);
             target2.setM_velocity(v);
 
+            Stopwatch stopwatch;
+            Text elapsedTime;
+            elapsedTime = Menu::loadFont();
+            stopwatch.start();
+            elapsedTime.rect = {0, 0, 100, 25};
+            elapsedTime.displayText = "car";
+
             //FIXME
             //While application is running
             while (!quit) {
@@ -633,6 +642,10 @@ int main(int argc, char *args[])
                     if (e.type == SDL_MOUSEMOTION) {
                         SDL_GetMouseState(&x, &y);
                     }
+                }
+                // Limit time for the player to get all done
+                if (stopwatch.getSec() == 60) {
+                    quit = true;
                 }
                 //Move the dot
                 //dot.move();
@@ -684,6 +697,13 @@ int main(int argc, char *args[])
 //                if (target.isToRender()) {
 //                    target.render(0, 0);
 //                }
+                    elapsedTime.color = {220,0,0};
+                    stopwatch.convertTime();
+                    elapsedTime.displayText = stopwatch.toString();
+                    elapsedTime.surface = TTF_RenderText_Solid(elapsedTime.font,
+                            elapsedTime.displayText.c_str(), elapsedTime.color);
+                    elapsedTime.texture = SDL_CreateTextureFromSurface(gRenderer, elapsedTime.surface);
+                    SDL_RenderCopy(gRenderer, elapsedTime.texture, NULL, &elapsedTime.rect);
 
                     //Update screen
                     SDL_RenderPresent(gRenderer);
@@ -692,6 +712,7 @@ int main(int argc, char *args[])
                 }
                 else {
                     SDL_RenderClear(gRenderer);
+
 //                    gameMenu.adjustText();
                     //TODO find a better way to do this
                     Text* gameMainMenuOpt1 = gameMenu.getMainMenuOpt1();

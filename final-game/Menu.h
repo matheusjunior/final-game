@@ -68,6 +68,8 @@ public:
     Text *getMainMenuOpt3();
 
     void handleEvent(SDL_Event e);
+
+    Text static loadFont();
 };
 
 
