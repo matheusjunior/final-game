@@ -690,15 +690,16 @@ int main(int argc, char *args[])
                     //Handle input for the dot
                     gameMenu.handleEvent(e);
                     dot.handleEvent(e);
-                    for(int i = 0; i < ; ++i) {
-                        
-                    }
+
                     if (e.key.keysym.sym == SDLK_p) {
                         // Check if there is any collectable object in range
-                        if (dot.getCollectable(target)) {
-                            target.setToRender(false);
+                        for(int i = 0; i < gShoal.size(); i++) {
+                            if (dot.getCollectable(gShoal[i])) {
+                                gShoal[i].setToRender(false);
+                                gShoal.erase(gShoal.begin() + i);
+                            }
+                            else target.setToRender(true);
                         }
-                        else target.setToRender(true);
                     }
 
                     if (e.type == SDL_MOUSEMOTION) {
@@ -756,14 +757,15 @@ int main(int argc, char *args[])
                     //Render objects
                     // \FIXME dot.render(camera.x, camera.y) affects steering behaviour working
                     dot.render(camera.x, camera.y);
-                    for(int i = 0; i < MAX_SHOAL_SIZE; ++i) {
+                    for(int i = 0; i < gShoal.size(); ++i) {
                         gShoal[i].render(camera.x, camera.y);
                     }
 //                target.render(0, 0);
 //                target2.render(0, 0);
 
 //                if (target.isToRender()) {
-//                    target.render(0, 0);
+//                    target.render(
+// 0, 0);
 //                }
                     elapsedTime.color = {220,0,0};
                     stopwatch.convertTime();
@@ -818,10 +820,10 @@ int Dot::getCollectable(Dot &obj)
     // \todo should collectable be destroyed?
     if (!obj.IsCollectable()) return 0;
 
-    bool isSameLine = obj.getPosX() <= this->getPosX() + 50 &&
-            obj.getPosX() >= this->getPosX() - 50;
-    bool isSameColumn = obj.getPosY() >= this->getPosY() - 10 &&
-            obj.getPosY() <= this->getPosY() + 10;
+    bool isSameLine = obj.getPosX() <= this->getPosX() + 100 &&
+            obj.getPosX() >= this->getPosX() - 100;
+    bool isSameColumn = obj.getPosY() >= this->getPosY() - 50 &&
+            obj.getPosY() <= this->getPosY() + 50;
 
     if (isSameLine && isSameColumn) {
         return 1;
