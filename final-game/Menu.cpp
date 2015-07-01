@@ -78,40 +78,67 @@ void Menu::updateSelection(int direction)
         if (currSelectedOption == 1 || currSelectedOption == 2) {
             m_gameMainMenuOpt1->displayText = "> New Game";
             m_gameMainMenuOpt2->displayText = "Options";
+            m_gameMainMenuOpt3->displayText = "Credits";
 
             m_gameMainMenuOpt1->color = colorSelected;
             m_gameMainMenuOpt2->color = colorPause;
+            m_gameMainMenuOpt3->color = colorPause;
             currSelectedOption = 1;
         }
-        else {
+        else if (currSelectedOption == 3) {
             m_gameMainMenuOpt1->displayText = "New Game";
             m_gameMainMenuOpt2->displayText = "> Options";
+            m_gameMainMenuOpt3->displayText = "Credits";
 
             m_gameMainMenuOpt1->color = colorPause;
             m_gameMainMenuOpt2->color = colorSelected;
+            m_gameMainMenuOpt3->color = colorPause;
             currSelectedOption = 2;
         }
-        m_gameMainMenuOpt3->displayText = "Exit";
-        m_gameMainMenuOpt3->color = colorPause;
+        else {
+            m_gameMainMenuOpt1->displayText = "New Game";
+            m_gameMainMenuOpt2->displayText = "Options";
+            m_gameMainMenuOpt3->displayText = "> Credits";
+
+            m_gameMainMenuOpt1->color = colorPause;
+            m_gameMainMenuOpt2->color = colorPause;
+            m_gameMainMenuOpt3->color = colorSelected;
+            currSelectedOption = 3;
+        }
+        m_gameMainMenuOpt4->displayText = "Exit";
+        m_gameMainMenuOpt4->color = colorPause;
     }
     else {
         if (direction == MENU_DOWN) {
-            if (currSelectedOption == 2 || currSelectedOption == 3) {
-                m_gameMainMenuOpt2->displayText = "Options";
-                m_gameMainMenuOpt3->displayText = "> Exit";
-
-                m_gameMainMenuOpt2->color = colorPause;
-                m_gameMainMenuOpt3->color = colorSelected;
-                currSelectedOption = 3;
-            }
-            else {
-                m_gameMainMenuOpt1->displayText = "New Game";
+            if (currSelectedOption == 1) {
                 m_gameMainMenuOpt2->displayText = "> Options";
-                m_gameMainMenuOpt3->displayText = "Exit";
+                m_gameMainMenuOpt3->displayText = "Credits";
+                m_gameMainMenuOpt4->displayText = "Exit";
 
                 m_gameMainMenuOpt2->color = colorSelected;
                 m_gameMainMenuOpt3->color = colorPause;
+                m_gameMainMenuOpt4->color = colorPause;
                 currSelectedOption = 2;
+            }
+            else if (currSelectedOption == 2) {
+                m_gameMainMenuOpt2->displayText = "Options";
+                m_gameMainMenuOpt3->displayText = "> Credits";
+                m_gameMainMenuOpt4->displayText = "Exit";
+//fixme not sure
+                m_gameMainMenuOpt2->color = colorPause;
+                m_gameMainMenuOpt3->color = colorSelected;
+                m_gameMainMenuOpt4->color = colorPause;
+                currSelectedOption = 3;
+            }
+            else {
+                m_gameMainMenuOpt2->displayText = "Options";
+                m_gameMainMenuOpt3->displayText = "Credits";
+                m_gameMainMenuOpt4->displayText = "> Exit";
+
+                m_gameMainMenuOpt2->color = colorPause;
+                m_gameMainMenuOpt3->color = colorPause;
+                m_gameMainMenuOpt4->color = colorSelected;
+                currSelectedOption = 4;
             }
             m_gameMainMenuOpt1->displayText = "New Game";
             m_gameMainMenuOpt1->color = colorPause;
@@ -132,6 +159,11 @@ Text *Menu::getMainMenuOpt2()
 Text *Menu::getMainMenuOpt3()
 {
     return m_gameMainMenuOpt3;
+}
+
+Text *Menu::getMainMenuOpt4()
+{
+    return m_gameMainMenuOpt4;
 }
 
 void Menu::handleEvent(SDL_Event e)
@@ -156,6 +188,9 @@ void Menu::handleEvent(SDL_Event e)
                         break;
                     }
                     case 2: {
+                        break;
+                    }
+                    case 3: {
                         isGamePaused = true;
 
                         if (showInfo) showInfo = false;
@@ -163,7 +198,7 @@ void Menu::handleEvent(SDL_Event e)
 
                         break;
                     }
-                    case 3: {
+                    case 4: {
                         quit = true;
                         break;
                     }

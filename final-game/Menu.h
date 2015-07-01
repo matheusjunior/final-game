@@ -26,6 +26,7 @@ private:
     Text *m_gameMainMenuOpt1;
     Text *m_gameMainMenuOpt2;
     Text *m_gameMainMenuOpt3;
+    Text *m_gameMainMenuOpt4;
     SDL_Color colorPause;
     SDL_Color colorSelected;
 
@@ -44,15 +45,18 @@ public:
         m_gameMainMenuOpt1 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2 - m_rightArrowX,
                 SCREEN_HEIGHT / 2 - 45, 150 + m_rightArrowW, 25);
         m_gameMainMenuOpt2 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 25, 130, 25);
-        m_gameMainMenuOpt3 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 5, 75, 25);
+        m_gameMainMenuOpt3 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 5, 100, 25);
+        m_gameMainMenuOpt4 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 + 20, 75, 25);
 
         m_gameMainMenuOpt1->displayText = "> New Game";
         m_gameMainMenuOpt2->displayText = "Options";
-        m_gameMainMenuOpt3->displayText = "Exit";
+        m_gameMainMenuOpt3->displayText = "Credits";
+        m_gameMainMenuOpt4->displayText = "Exit";
 
         m_gameMainMenuOpt1->color = colorSelected;
         m_gameMainMenuOpt2->color = colorPause;
         m_gameMainMenuOpt3->color = colorPause;
+        m_gameMainMenuOpt4->color = colorPause;
     };
 
     Text static loadFontAndSetPosition(int px, int py, int w, int h);
@@ -68,6 +72,8 @@ public:
     Text *getMainMenuOpt2();
 
     Text *getMainMenuOpt3();
+
+    Text *getMainMenuOpt4();
 
     void handleEvent(SDL_Event e);
 

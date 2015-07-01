@@ -804,6 +804,7 @@ int main(int argc, char *args[])
                         Text *gameMainMenuOpt1 = gameMenu.getMainMenuOpt1();
                         Text *gameMainMenuOpt2 = gameMenu.getMainMenuOpt2();
                         Text *gameMainMenuOpt3 = gameMenu.getMainMenuOpt3();
+                        Text *gameMainMenuOpt4 = gameMenu.getMainMenuOpt4();
 
                         gameMainMenuOpt1->surface = TTF_RenderText_Solid(gameMainMenuOpt1->font,
                                 gameMainMenuOpt1->displayText.c_str(), gameMainMenuOpt1->color);
@@ -819,6 +820,11 @@ int main(int argc, char *args[])
                                 gameMainMenuOpt3->displayText.c_str(), gameMainMenuOpt3->color);
                         gameMainMenuOpt3->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt3->surface);
                         SDL_RenderCopy(gRenderer, gameMainMenuOpt3->texture, NULL, &gameMainMenuOpt3->rect);
+
+                        gameMainMenuOpt4->surface = TTF_RenderText_Solid(gameMainMenuOpt4->font,
+                                gameMainMenuOpt4->displayText.c_str(), gameMainMenuOpt4->color);
+                        gameMainMenuOpt4->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt4->surface);
+                        SDL_RenderCopy(gRenderer, gameMainMenuOpt4->texture, NULL, &gameMainMenuOpt4->rect);
                     }
                     SDL_RenderPresent(gRenderer);
                 }
