@@ -12,6 +12,8 @@
 
 #define MENU_UP         1
 #define MENU_DOWN       -1
+#define MAX_SHOAL_SIZE  5
+#define FISH_SPEED      5
 //#define MENU_HEIGHT = 95;
 
 //The dimensions of the level

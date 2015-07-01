@@ -7,11 +7,12 @@
 #include <math.h>
 #include "SteeringManager.h"
 #include "Util.h"
+#include "Consts.h"
 
 // \todo why it shouldn't be placed in the header file?
-const double ANGLE_CHANGE = 2;
-const float CIRCLE_DISTANCE = 5;
-const float CIRCLE_RADIUS = 2;
+const double ANGLE_CHANGE = 0;
+const float CIRCLE_DISTANCE = 0.5;
+const float CIRCLE_RADIUS = 0.2;
 const float LEADER_BEHIND_DIST = 50;
 float wanderAngle = 3;
 
@@ -114,27 +115,33 @@ void SteeringManager::update()
 
 Vector2d SteeringManager::doWander()
 {
-    Vector2d circle;
+    Vector2d circleCenter;
     Vector2d displacement(0, -1);
 
-    circle = host->getVelocity();
-    // Find the circle's center position
-    circle.Normalize();
-    circle.x *= CIRCLE_DISTANCE;
-    circle.y *= CIRCLE_DISTANCE;
-
-    // rotation matrix
-    displacement.x = cos(wanderAngle) * displacement.x + -sin(wanderAngle) * displacement.y;
-    displacement.y = sin(wanderAngle) * displacement.x + cos(wanderAngle) * displacement.y;
+    circleCenter = host->getVelocity();
+    // Find the circleCenter's center position
+    circleCenter.Normalize();
+    circleCenter.x *= CIRCLE_DISTANCE;
+    circleCenter.y *= CIRCLE_DISTANCE;
 
     displacement.x *= CIRCLE_RADIUS;
     displacement.y *= CIRCLE_RADIUS;
 
-    wanderAngle += Util::GenerateRandom(0, 10) * ANGLE_CHANGE - ANGLE_CHANGE * 0.1;
+    // rotation matrix
+//    displacement.x = cos(wanderAngle) * displacement.x + -sin(wanderAngle) * displacement.y;
+//    displacement.y = sin(wanderAngle) * displacement.x + cos(wanderAngle) * displacement.y;
+
+    float len = displacement.getLength();
+    displacement.x = cos(wanderAngle) * len;
+    displacement.y = sin(wanderAngle) * len;
+
+    wanderAngle += (Util::GenerateRandom(0, 10) * ANGLE_CHANGE) - (ANGLE_CHANGE * 0.5);
     // \todo for safety reasons, long-running instance
     if (wanderAngle > INT_MAX/2) wanderAngle = 0;
 
-    return circle + displacement;
+    return circleCenter + displacement;
+//    Vector2d t(Util::GenerateRandom(0, SCREEN_WIDTH), Util::GenerateRandom(0, SCREEN_HEIGHT));
+//    return doSeek(t);
 }
 
 Vector2d SteeringManager::doPursuit(IMovingEntity &target)
