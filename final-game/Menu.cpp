@@ -16,7 +16,7 @@ void Menu::adjustText()
 //		m_gameMainMenuOpt2 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 25, 130, 25);
 //		m_gameMainMenuOpt3 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 5, 75, 25);
 //		m_gameMainMenuOpt1->displayText = "> New Game";
-//		m_gameMainMenuOpt2->displayText = "Options";
+//		m_gameMainMenuOpt2->displayText = "Information";
 //		m_gameMainMenuOpt3->displayText = "Exit";
 //
 //		m_gameMainMenuOpt1->color = colorSelected;
@@ -77,7 +77,7 @@ void Menu::updateSelection(int direction)
     if (direction == MENU_UP) {
         if (currSelectedOption == 1 || currSelectedOption == 2) {
             m_gameMainMenuOpt1->displayText = "> New Game";
-            m_gameMainMenuOpt2->displayText = "Options";
+            m_gameMainMenuOpt2->displayText = "Information";
             m_gameMainMenuOpt3->displayText = "Credits";
 
             m_gameMainMenuOpt1->color = colorSelected;
@@ -87,7 +87,7 @@ void Menu::updateSelection(int direction)
         }
         else if (currSelectedOption == 3) {
             m_gameMainMenuOpt1->displayText = "New Game";
-            m_gameMainMenuOpt2->displayText = "> Options";
+            m_gameMainMenuOpt2->displayText = "> Information";
             m_gameMainMenuOpt3->displayText = "Credits";
 
             m_gameMainMenuOpt1->color = colorPause;
@@ -97,7 +97,7 @@ void Menu::updateSelection(int direction)
         }
         else {
             m_gameMainMenuOpt1->displayText = "New Game";
-            m_gameMainMenuOpt2->displayText = "Options";
+            m_gameMainMenuOpt2->displayText = "Information";
             m_gameMainMenuOpt3->displayText = "> Credits";
 
             m_gameMainMenuOpt1->color = colorPause;
@@ -111,7 +111,7 @@ void Menu::updateSelection(int direction)
     else {
         if (direction == MENU_DOWN) {
             if (currSelectedOption == 1) {
-                m_gameMainMenuOpt2->displayText = "> Options";
+                m_gameMainMenuOpt2->displayText = "> Information";
                 m_gameMainMenuOpt3->displayText = "Credits";
                 m_gameMainMenuOpt4->displayText = "Exit";
 
@@ -121,7 +121,7 @@ void Menu::updateSelection(int direction)
                 currSelectedOption = 2;
             }
             else if (currSelectedOption == 2) {
-                m_gameMainMenuOpt2->displayText = "Options";
+                m_gameMainMenuOpt2->displayText = "Information";
                 m_gameMainMenuOpt3->displayText = "> Credits";
                 m_gameMainMenuOpt4->displayText = "Exit";
 //fixme not sure
@@ -131,7 +131,7 @@ void Menu::updateSelection(int direction)
                 currSelectedOption = 3;
             }
             else {
-                m_gameMainMenuOpt2->displayText = "Options";
+                m_gameMainMenuOpt2->displayText = "Information";
                 m_gameMainMenuOpt3->displayText = "Credits";
                 m_gameMainMenuOpt4->displayText = "> Exit";
 
@@ -188,6 +188,11 @@ void Menu::handleEvent(SDL_Event e)
                         break;
                     }
                     case 2: {
+                        isGamePaused = true;
+
+                        if (showCredits) showCredits = false;
+                        else showCredits = true;
+
                         break;
                     }
                     case 3: {
@@ -214,6 +219,20 @@ void Menu::handleEvent(SDL_Event e)
                 if (isGamePaused) updateSelection(MENU_DOWN);
                 break;
             }
+            case SDLK_RIGHT: {
+                if (isGamePaused && showCredits && slideIndex < NUMBER_SLIDES) {
+                    slideIndex++;
+                }
+                break;
+            }
+            case SDLK_LEFT: {
+                if (isGamePaused && showCredits && slideIndex > 0) {
+                    slideIndex--;
+                }
+                break;
+            }
+            default:
+                break;
         }
     }
     /* If needed... */

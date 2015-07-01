@@ -47,9 +47,10 @@ bool quit = false;
 // flags for displaying info and credits
 bool showInfo = false;
 bool showCredits = false;
+// holds the current slide index; used when displaying info about fishes
+int slideIndex = 0;
 
-
-void generateFishPosition();
+void populateShoal();
 
 //The dot that will move around on the screen
 class Dot : public IMovingEntity
@@ -198,7 +199,8 @@ SDL_Renderer *gRenderer = NULL;
 
 //Scene textures
 LTexture gDotTexture, gBGTexture, gBGTextureValley, gBGTextureCredits,
-        gInfoMenuBar, gInfoMenuBarShadow;
+        gInfoMenuBar, gInfoMenuBarShadow, gBGTextureCurrSlide;
+vector<LTexture> gSLides;
 
 Sprite gMenu;
 
@@ -506,13 +508,14 @@ bool loadMedia()
     gBGTexture.setRenderer(gRenderer);
     gBGTextureValley.setRenderer(gRenderer);
     gBGTextureCredits.setRenderer(gRenderer);
+    gBGTextureCurrSlide.setRenderer(gRenderer);
 
     gDotTexture.setRenderer(gRenderer);
     gMenu.setRenderer(gRenderer);
     gInfoMenuBar.setRenderer(gRenderer);
     gInfoMenuBarShadow.setRenderer(gRenderer);
 
-    for(int i = 0; i < MAX_SHOAL_SIZE; ++i) {
+    for (int i = 0; i < MAX_SHOAL_SIZE; ++i) {
         gShoal[i].getCurrTexture().setRenderer(gRenderer);
         if (!gShoal[i].getCurrTexture().loadFromFile("media/c2.png")) {
             printf("Failed to load dot texture!\n");
@@ -543,6 +546,22 @@ bool loadMedia()
 
     if (!gBGTextureCredits.loadFromFile("media/credits.png")) {
         printf("Failed to load credits texture!\n");
+        getchar();
+        success = false;
+    }
+
+    for (int i = 0; i < NUMBER_SLIDES; i++) {
+        LTexture lt;
+        gSLides.push_back(lt);
+        gSLides[i].setRenderer(gRenderer);
+    }
+
+    // Put here the list of slides to be loaded
+    //fixme poor implementation
+    if (!gSLides[0].loadFromFile("media/c1.png") || !gSLides[1].loadFromFile("media/c2.png") ||
+            !gSLides[2].loadFromFile("media/c3.png") || !gSLides[3].loadFromFile("media/c4.png") ||
+            !gSLides[3].loadFromFile("media/c5.png")) {
+        printf("Failed to load info texture!\n");
         getchar();
         success = false;
     }
@@ -580,6 +599,8 @@ void close()
     gBGTexture.free();
     gBGTextureValley.free();
     gBGTextureCredits.free();
+    gSLides.clear();
+
     gInfoMenuBar.free();
     gInfoMenuBarShadow.free();
     gMenu.free();
@@ -624,7 +645,7 @@ int main(int argc, char *args[])
 #endif
         printf("The current working directory is %s\n", currentPath);
 
-        generateFishPosition();
+        populateShoal();
         //Load media
         if (!loadMedia())
             printf("Failed to load media!\n");
@@ -798,6 +819,10 @@ int main(int argc, char *args[])
                     if (showInfo) {
                         gBGTextureCredits.render(0, 0, &camera);
                     }
+                    else if (showCredits) {
+                        gBGTextureCurrSlide = gSLides[slideIndex];
+                        gBGTextureCurrSlide.render(0, 0, &camera);
+                    }
                     else {
                         //                    gameMenu.adjustText();
                         //TODO find a better way to do this
@@ -910,17 +935,14 @@ void Dot::animate()
     }
 }
 
-void generateFishPosition()
+void populateShoal()
 {
     int a = Util::GenerateRandom(0, FISH_SPEED);
     Vector2d speed(0, 0);
 
     for(int i = 0 ; i < MAX_SHOAL_SIZE; i++) {
         Dot dot;
-        int y = Util::GenerateRandom(0, SCREEN_HEIGHT);
-        int x = Util::GenerateRandom(0, SCREEN_WIDTH);
-        Vector2d pos(x, y);
-        dot.setM_position(pos);
+        dot.setM_position(Vector2d::generateRandomVector());
         dot.setVelocity(speed);
 
         gShoal.push_back(dot);

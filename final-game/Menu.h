@@ -15,6 +15,7 @@ extern bool isGamePaused;
 extern bool quit;
 extern bool showInfo;
 extern bool showCredits;
+extern int  slideIndex;
 
 class Menu
 {
@@ -44,12 +45,12 @@ public:
 
         m_gameMainMenuOpt1 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2 - m_rightArrowX,
                 SCREEN_HEIGHT / 2 - 45, 150 + m_rightArrowW, 25);
-        m_gameMainMenuOpt2 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 25, 130, 25);
+        m_gameMainMenuOpt2 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 25, 200, 25);
         m_gameMainMenuOpt3 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 - 5, 100, 25);
         m_gameMainMenuOpt4 = loadFontAndSetPositionRef(SCREEN_WIDTH / 2 - 220 / 2, SCREEN_HEIGHT / 2 + 20, 75, 25);
 
         m_gameMainMenuOpt1->displayText = "> New Game";
-        m_gameMainMenuOpt2->displayText = "Options";
+        m_gameMainMenuOpt2->displayText = "Information";
         m_gameMainMenuOpt3->displayText = "Credits";
         m_gameMainMenuOpt4->displayText = "Exit";
 

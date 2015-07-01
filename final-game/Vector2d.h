@@ -42,6 +42,8 @@ struct Vector2d {
 	
 	void Reflect(const Vector2d& norm);
 
+    static Vector2d generateRandomVector();
+
 
 	/********************************************/
 

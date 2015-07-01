@@ -1,5 +1,7 @@
 #include <math.h>
 #include "Vector2d.h"
+#include "Consts.h"
+#include "Util.h"
 
 #ifdef _WIN32
 
@@ -88,4 +90,11 @@ Vector2d Vector2d::Normalize(Vector2d v)
         v.y /= vector_length;
     }
     return v;
+}
+
+Vector2d Vector2d::generateRandomVector()
+{
+    int y = Util::GenerateRandom(0, SCREEN_HEIGHT);
+    int x = Util::GenerateRandom(0, SCREEN_WIDTH);
+    return Vector2d(x, y);
 }
