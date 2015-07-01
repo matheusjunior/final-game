@@ -41,9 +41,12 @@ const int LEVEL_HEIGHT = 2250;
 
 const int MENU_HEIGHT = 95;
 bool isGamePaused = true;
-//Main loop flag
-bool quit = false;
 
+// Main loop flag
+bool quit = false;
+// flags for displaying info and credits
+bool showInfo = false;
+bool showCredits = false;
 
 
 void generateFishPosition();
@@ -194,7 +197,7 @@ SDL_Window *gWindow = NULL;
 SDL_Renderer *gRenderer = NULL;
 
 //Scene textures
-LTexture gDotTexture, gBGTexture, gBGTextureValley,
+LTexture gDotTexture, gBGTexture, gBGTextureValley, gBGTextureCredits,
         gInfoMenuBar, gInfoMenuBarShadow;
 
 Sprite gMenu;
@@ -500,9 +503,11 @@ bool loadMedia()
     //Loading success flag
     bool success = true;
 
-    gDotTexture.setRenderer(gRenderer);
     gBGTexture.setRenderer(gRenderer);
     gBGTextureValley.setRenderer(gRenderer);
+    gBGTextureCredits.setRenderer(gRenderer);
+
+    gDotTexture.setRenderer(gRenderer);
     gMenu.setRenderer(gRenderer);
     gInfoMenuBar.setRenderer(gRenderer);
     gInfoMenuBarShadow.setRenderer(gRenderer);
@@ -532,6 +537,12 @@ bool loadMedia()
 
     if (!gBGTextureValley.loadFromFile("media/valley.png")) {
         printf("Failed to load valley texture!\n");
+        getchar();
+        success = false;
+    }
+
+    if (!gBGTextureCredits.loadFromFile("media/credits.png")) {
+        printf("Failed to load credits texture!\n");
         getchar();
         success = false;
     }
@@ -568,6 +579,7 @@ void close()
     gDotTexture.free();
     gBGTexture.free();
     gBGTextureValley.free();
+    gBGTextureCredits.free();
     gInfoMenuBar.free();
     gInfoMenuBarShadow.free();
     gMenu.free();
@@ -783,26 +795,31 @@ int main(int argc, char *args[])
                 else {
                     SDL_RenderClear(gRenderer);
 
-//                    gameMenu.adjustText();
-                    //TODO find a better way to do this
-                    Text* gameMainMenuOpt1 = gameMenu.getMainMenuOpt1();
-                    Text* gameMainMenuOpt2 = gameMenu.getMainMenuOpt2();
-                    Text* gameMainMenuOpt3 = gameMenu.getMainMenuOpt3();
+                    if (showInfo) {
+                        gBGTextureCredits.render(0, 0, &camera);
+                    }
+                    else {
+                        //                    gameMenu.adjustText();
+                        //TODO find a better way to do this
+                        Text *gameMainMenuOpt1 = gameMenu.getMainMenuOpt1();
+                        Text *gameMainMenuOpt2 = gameMenu.getMainMenuOpt2();
+                        Text *gameMainMenuOpt3 = gameMenu.getMainMenuOpt3();
 
-                    gameMainMenuOpt1->surface = TTF_RenderText_Solid(gameMainMenuOpt1->font,
-                            gameMainMenuOpt1->displayText.c_str(), gameMainMenuOpt1->color);
-                    gameMainMenuOpt1->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt1->surface);
-                    SDL_RenderCopy(gRenderer, gameMainMenuOpt1->texture, NULL, &gameMainMenuOpt1->rect);
+                        gameMainMenuOpt1->surface = TTF_RenderText_Solid(gameMainMenuOpt1->font,
+                                gameMainMenuOpt1->displayText.c_str(), gameMainMenuOpt1->color);
+                        gameMainMenuOpt1->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt1->surface);
+                        SDL_RenderCopy(gRenderer, gameMainMenuOpt1->texture, NULL, &gameMainMenuOpt1->rect);
 
-                    gameMainMenuOpt2->surface = TTF_RenderText_Solid(gameMainMenuOpt2->font,
-                            gameMainMenuOpt2->displayText.c_str(), gameMainMenuOpt2->color);
-                    gameMainMenuOpt2->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt2->surface);
-                    SDL_RenderCopy(gRenderer, gameMainMenuOpt2->texture, NULL, &gameMainMenuOpt2->rect);
+                        gameMainMenuOpt2->surface = TTF_RenderText_Solid(gameMainMenuOpt2->font,
+                                gameMainMenuOpt2->displayText.c_str(), gameMainMenuOpt2->color);
+                        gameMainMenuOpt2->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt2->surface);
+                        SDL_RenderCopy(gRenderer, gameMainMenuOpt2->texture, NULL, &gameMainMenuOpt2->rect);
 
-                    gameMainMenuOpt3->surface = TTF_RenderText_Solid(gameMainMenuOpt3->font,
-                            gameMainMenuOpt3->displayText.c_str(), gameMainMenuOpt3->color);
-                    gameMainMenuOpt3->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt3->surface);
-                    SDL_RenderCopy(gRenderer, gameMainMenuOpt3->texture, NULL, &gameMainMenuOpt3->rect);
+                        gameMainMenuOpt3->surface = TTF_RenderText_Solid(gameMainMenuOpt3->font,
+                                gameMainMenuOpt3->displayText.c_str(), gameMainMenuOpt3->color);
+                        gameMainMenuOpt3->texture = SDL_CreateTextureFromSurface(gRenderer, gameMainMenuOpt3->surface);
+                        SDL_RenderCopy(gRenderer, gameMainMenuOpt3->texture, NULL, &gameMainMenuOpt3->rect);
+                    }
                     SDL_RenderPresent(gRenderer);
                 }
             }

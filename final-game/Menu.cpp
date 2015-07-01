@@ -1,8 +1,6 @@
 #include <iostream>
 #include "Menu.h"
 
-
-
 void Menu::adjustText()
 {
     if (singleInstance) {
@@ -158,6 +156,11 @@ void Menu::handleEvent(SDL_Event e)
                         break;
                     }
                     case 2: {
+                        isGamePaused = true;
+
+                        if (showInfo) showInfo = false;
+                        else showInfo = true;
+
                         break;
                     }
                     case 3: {

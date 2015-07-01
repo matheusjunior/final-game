@@ -13,6 +13,8 @@
 
 extern bool isGamePaused;
 extern bool quit;
+extern bool showInfo;
+extern bool showCredits;
 
 class Menu
 {
