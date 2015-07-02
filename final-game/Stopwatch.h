@@ -73,6 +73,7 @@ public:
     void pause();
     void stop();
     uint32_t getCurrTime();
+
     void convertTime();
     std::string toString();
 

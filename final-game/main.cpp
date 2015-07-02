@@ -538,8 +538,8 @@ bool loadMedia()
         success = false;
     }
 
-    if (!gBGTextureValley.loadFromFile("media/valley.png")) {
-        printf("Failed to load valley texture!\n");
+    if (!gBGTextureValley.loadFromFile("media/beautiful-ocean.png")) {
+        printf("Failed to load beautiful ocean texture!\n");
         getchar();
         success = false;
     }
@@ -558,9 +558,11 @@ bool loadMedia()
 
     // Put here the list of slides to be loaded
     //fixme poor implementation
-    if (!gSLides[0].loadFromFile("media/c1.png") || !gSLides[1].loadFromFile("media/c2.png") ||
-            !gSLides[2].loadFromFile("media/c3.png") || !gSLides[3].loadFromFile("media/c4.png") ||
-            !gSLides[3].loadFromFile("media/c5.png")) {
+    if (!gSLides[0].loadFromFile("media/coral.png") ||
+            !gSLides[1].loadFromFile("media/coral-2.png") ||
+            !gSLides[2].loadFromFile("media/cavalo-marinho-1.png") ||
+            !gSLides[3].loadFromFile("media/cavalo-marinho-2.png") ||
+            !gSLides[4].loadFromFile("media/caranguejo.png")) {
         printf("Failed to load info texture!\n");
         getchar();
         success = false;
@@ -627,11 +629,13 @@ int main(int argc, char *args[])
     int fps = 40, fpsMill = 1000 / fps;
     SDL_Texture *backgroundText = NULL;
     char currentPath[FILENAME_MAX];
+    Stopwatch globalTime;
 
     //Start up SDL and create window
     if (!init()) printf("Failed to initialize!\n");
 
     else {
+        globalTime.start();
 #ifdef _WIN32
 		if (!GetCurrentDir(currentPath, sizeof(currentPath)))
 			return errno;
@@ -683,7 +687,7 @@ int main(int argc, char *args[])
             Stopwatch stopwatch;
             Text elapsedTime;
             elapsedTime = Menu::loadFont();
-            stopwatch.start();
+
             elapsedTime.rect = {0, 0, 100, 25};
             elapsedTime.displayText = "car";
 
@@ -700,11 +704,17 @@ int main(int argc, char *args[])
 //            dot.loadSpriteSheet("media/c8.png");
 //            dot.loadSpriteSheet("media/c9.png");
 
-            dot.getStopwatch().start();
 
+            bool runOnce = false;
             //FIXME
             //While application is running
             while (!quit) {
+                if (!isGamePaused && !runOnce) {
+                    stopwatch.start();
+                    dot.getStopwatch().start();
+                    runOnce = true;
+                }
+
                 currentFrameTime = SDL_GetTicks();
                 d_time = (currentFrameTime - lastFrameTime) / 1000;
                 lastFrameTime = SDL_GetTicks();

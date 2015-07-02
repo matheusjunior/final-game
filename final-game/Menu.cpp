@@ -220,7 +220,7 @@ void Menu::handleEvent(SDL_Event e)
                 break;
             }
             case SDLK_RIGHT: {
-                if (isGamePaused && showCredits && slideIndex < NUMBER_SLIDES) {
+                if (isGamePaused && showCredits && slideIndex < NUMBER_SLIDES - 1) {
                     slideIndex++;
                 }
                 break;
